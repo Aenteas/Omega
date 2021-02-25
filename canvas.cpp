@@ -180,6 +180,5 @@ void Canvas::reset(){
     currentColor = Color::WHITE;
     prevBlack = NULL;
     prevWhite = NULL;
-    active = true;
     repaint();
 }

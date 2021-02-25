@@ -99,49 +99,67 @@ void BoardDialog::switchTimers(){
 void BoardDialog::on_startButton_clicked()
 {
     canvas->active = false;
+    stopTimer();
     if(inGame){
         QMessageBox::StandardButton reply;
         reply = QMessageBox::question(this, "Restart", "Are you sure want to restart the game?", QMessageBox::Yes|QMessageBox::No);
         if(reply == QMessageBox::Yes){
             // re-init canvas, game state and restart timers
-            canvas->reset();
             gameState.reset();
+            updateControlPanel();
+            canvas->reset();
             startTimer(true);
+            // start bot if there is one
+            if(aiBot){
+                aiBot->reset();
+                // if bot starts the game
+                if(playerColor != Color::WHITE){
+                    ui->quitButton->setEnabled(false);
+                    ui->startButton->setEnabled(false);
+                    canvas->active = false;
+                    aiBot->updateGame();
+                }
+                else canvas->active = true;
+            }
+            else canvas->active = true;
         }
-        else{
+        else if(!gameState.end()){
             startTimer(false);
+            canvas->active = true;
         }
     }
     else{
         inGame = true;
         ui->startButton->setText("Start New Game");
         startTimer(true);
-    }
-    updateControlPanel();
-    if(aiBot){
-        aiBot->reset();
-        // if bot starts the game
-        if(playerColor != Color::WHITE){
-            ui->quitButton->setEnabled(false);
-            ui->startButton->setEnabled(false);
-            canvas->active = false;
-            aiBot->updateGame();
+        // start bot if there is one
+        if(aiBot){
+            // if bot starts the game
+            if(playerColor != Color::WHITE){
+                ui->quitButton->setEnabled(false);
+                ui->startButton->setEnabled(false);
+                canvas->active = false;
+                aiBot->updateGame();
+            }
+            else canvas->active = true;
         }
         else canvas->active = true;
     }
-    else canvas->active = true;
 }
 
 void BoardDialog::on_quitButton_clicked()
 {
     stopTimer();
-    if(canvas->active){
+    canvas->active = false;
+    if(inGame){
         QMessageBox::StandardButton reply;
         reply = QMessageBox::question(this, "Quit", "Are you sure want to quit?", QMessageBox::Yes|QMessageBox::No);
         if(reply == QMessageBox::Yes)
             emit back_to_main();
-        else
+        else if(!gameState.end()){
             startTimer(false);
+            canvas->active = true;
+        }
     }
     else emit back_to_main();
 }
