@@ -4,6 +4,8 @@ Omega board game with C++ game engine and graphical interface implemented in Qt.
 
 <img src='gameplay.gif' align="left" width=650>
 
+<br><br><br>
+
 ### Requirements
 Download QT Creator and run project:
 https://www.qt.io/download-open-source
